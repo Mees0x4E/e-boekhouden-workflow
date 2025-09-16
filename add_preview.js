@@ -1,5 +1,8 @@
 const viewbox = 'fancybox';
 
+// how much time between checking if the file list changed
+const updateTime = 1000;
+
 if (viewbox === 'lightbox')
     // turn off all animations, because I only care about speed
     lightbox.option({
@@ -8,17 +11,22 @@ if (viewbox === 'lightbox')
         resizeDuration: 0,
     });
 
-setTimeout(findFileList, 100);
+setTimeout(addViewboxLinksIfAbsent, 100);
 
-async function findFileList() {
+
+async function addViewboxLinksIfAbsent() {
     const fileListElements = getFileList();
-    if (!fileListElements) {
-        setTimeout(findFileList, 1000);
-        return;
+    // if the fileListElements are not present, it means the user is on the wrong page
+    // or the addon is called in the wrong iframe
+    // if the viewbox is already added, it doesn't need to be added again until it is updated
+    if (fileListElements && !checkIfViewboxAdded(fileListElements)) {
+        const fileListData = await getFileListData();
+        const fileListDataByName = indexFileListByName(fileListData);
+        setViewboxLinks(fileListElements, fileListDataByName);
+        markViewboxAdded(fileListElements);
     }
-    const fileListData = await getFileListData();
-    const fileListDataByName = indexFileListByName(fileListData);
-    setLightboxLinks(fileListElements, fileListDataByName);
+    // try again in case the user changes subpage or the file list has changed
+    setTimeout(addViewboxLinksIfAbsent, updateTime);
 }
 
 function indexFileListByName(fileListData) {
@@ -29,7 +37,23 @@ function indexFileListByName(fileListData) {
     return result;
 }
 
-async function setLightboxLinks(fileListElements, fileListDataByName) {
+// check if the mark added by markViewboxAdded on the first row is present or not
+function checkIfViewboxAdded(fileListElements) {
+    const firstRow = fileListElements[0];
+    // if the file list is empty, technically all of them have a viewbox
+    if (!firstRow)
+        return true;
+    return firstRow.getAttribute('viewbox-added') === 'true';
+}
+
+// mark the first row so it is easy to check if the rows got updated
+function markViewboxAdded(fileListElements) {
+    const firstRow = fileListElements[0];
+    if (firstRow)
+        firstRow.setAttribute('viewbox-added', 'true');
+}
+
+function setViewboxLinks(fileListElements, fileListDataByName) {
     for (const row of fileListElements) {
         // get the span element that contains the file name
         const fileNameField = row.querySelector('div.g-name > span');
@@ -39,6 +63,9 @@ async function setLightboxLinks(fileListElements, fileListDataByName) {
         // get the file name and search the file id
         const fileName = fileNameField.getAttribute('title');
         const fileData = fileListDataByName.get(fileName);
+        // skip directories, only include files
+        if (fileData.soort === 'D')
+            continue;
         const fileLink = `https://secure20.e-boekhouden.nl/v1/api/folder/${fileData.id}/preview?inline=true`;
 
         // create an html element that opens a lightbox
@@ -82,20 +109,6 @@ async function getFileListData() {
     } catch (err) {
         console.error("Fetch failed", err);
     }
-}
-
-function makeBlue(file_list) {
-    for (const row of file_list) {
-        row.style.backgroundColor = 'yellow';
-        const button = document.createElement('button');
-        button.innerText = getRowName(row);
-        row.appendChild(button);
-    }
-}
-function getRowName(row) {
-    const gNameQuery = row.getElementsByClassName('g-name');
-    const spanQuery = gNameQuery[0].getElementsByTagName('span');
-    return spanQuery[0].getAttribute('title');
 }
 
 function getFileList() {
