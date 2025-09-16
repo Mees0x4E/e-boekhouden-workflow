@@ -8,20 +8,15 @@
         "cookies",
         "*://secure20.e-boekhouden.nl/*"
     ],
-    "background": {
-        "scripts": [
-            "background.js"
-        ],
-        "persistent": true
-    },
     "content_scripts": [
         {
             "matches": [
                 "*://secure20.e-boekhouden.nl/*"
             ],
             "js": [
-                "add_preview.js"
+                "lightbox/lightbox-plus-jquery.min.js", "add_preview.js"
             ],
+            "css" : ["lightbox/lightbox.min.css"],
             "all_frames": true
         }
     ]
