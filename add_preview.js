@@ -1,9 +1,12 @@
-lightbox.option({
-    fadeDuration: 0,
-    imageFadeDuration: 0,
-    resizeDuration: 0,
-    
-});
+const viewbox = 'fancybox';
+
+if (viewbox === 'lightbox')
+    // turn off all animations, because I only care about speed
+    lightbox.option({
+        fadeDuration: 0,
+        imageFadeDuration: 0,
+        resizeDuration: 0,
+    });
 
 setTimeout(findFileList, 100);
 
@@ -15,8 +18,7 @@ async function findFileList() {
     }
     const fileListData = await getFileListData();
     const fileListDataByName = indexFileListByName(fileListData);
-    // makeBlue(fileListElements);
-    setLightboxLinks(fileListElements, fileListDataByName)
+    setLightboxLinks(fileListElements, fileListDataByName);
 }
 
 function indexFileListByName(fileListData) {
@@ -37,17 +39,35 @@ async function setLightboxLinks(fileListElements, fileListDataByName) {
         // get the file name and search the file id
         const fileName = fileNameField.getAttribute('title');
         const fileData = fileListDataByName.get(fileName);
-        const fileLink = `https://secure20.e-boekhouden.nl/v1/api/folder/${fileData.id}/preview?inline=false`;
-        
+        const fileLink = `https://secure20.e-boekhouden.nl/v1/api/folder/${fileData.id}/preview?inline=true`;
+
         // create an html element that opens a lightbox
-        const lightboxLink = document.createElement('a');
-        lightboxLink.setAttribute('href', fileLink);
-        lightboxLink.setAttribute('data-lightbox', `file-${fileData.id}`);
-        lightboxLink.setAttribute('data-title', fileName);
-        
+        const viewboxLink = document.createElement('a');
+        viewboxLink.setAttribute('href', fileLink);
+        if (viewbox === 'fancybox') {
+            viewboxLink.setAttribute('data-fancybox', 'file-list');
+            viewboxLink.setAttribute('data-caption', fileName);
+            if (fileName.toLowerCase().endsWith('.pdf')) {
+                viewboxLink.setAttribute('data-type', 'pdf');
+            }
+            else if (fileName.toLowerCase().endsWith('.txt')) {
+                viewboxLink.setAttribute('data-type', 'iframe');
+            }
+        }
+        else if (viewbox === 'lightbox') {
+            viewboxLink.setAttribute('data-lightbox', `file-${fileData.id}`);
+            viewboxLink.setAttribute('data-title', fileName);
+        }
+
         // encapsulate the file name field element within the lightbox link element
-        fileNameField.parentNode.appendChild(lightboxLink);
-        lightboxLink.appendChild(fileNameField);
+        fileNameField.parentNode.appendChild(viewboxLink);
+        viewboxLink.appendChild(fileNameField);
+    }
+    if (viewbox === 'fancybox') {
+        Fancybox.bind("[data-fancybox]", {
+            // prevents fancybox from triggering a file list reload
+            Hash: false
+        });
     }
 }
 

@@ -14,9 +14,14 @@
                 "*://secure20.e-boekhouden.nl/*"
             ],
             "js": [
-                "lightbox/lightbox-plus-jquery.min.js", "add_preview.js"
+                "fancybox/fancybox.umd.js",
+                "lightbox/lightbox-plus-jquery.min.js",
+                "add_preview.js"
             ],
-            "css" : ["lightbox/lightbox.min.css"],
+            "css": [
+                "fancybox/fancybox.css",
+                "lightbox/lightbox.min.css"
+            ],
             "all_frames": true
         }
     ]
