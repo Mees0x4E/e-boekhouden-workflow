@@ -72,7 +72,12 @@ function setViewboxLinks(fileListElements, fileListDataByName) {
         const viewboxLink = document.createElement('a');
         viewboxLink.setAttribute('href', fileLink);
         if (viewbox === 'fancybox') {
-            viewboxLink.setAttribute('data-fancybox', 'file-list');
+            if (fileData.koppelCount === 0) {
+                viewboxLink.setAttribute('data-fancybox', 'file-list-niet-gekoppeld');
+            }
+            else {
+                viewboxLink.setAttribute('data-fancybox', 'file-list-gekoppeld');
+            }
             viewboxLink.setAttribute('data-caption', fileName);
             if (fileName.toLowerCase().endsWith('.pdf')) {
                 viewboxLink.setAttribute('data-type', 'pdf');

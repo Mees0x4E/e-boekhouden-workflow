@@ -1,13 +1,7 @@
 {
-    "manifest_version": 2,
+    "manifest_version": 3,
     "name": "e-boekhouden-workflow",
     "version": "1.0",
-    "permissions": [
-        "webRequest",
-        "webRequestBlocking",
-        "cookies",
-        "*://secure20.e-boekhouden.nl/*"
-    ],
     "content_scripts": [
         {
             "matches": [
