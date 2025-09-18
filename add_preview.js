@@ -54,6 +54,27 @@ function markViewboxAdded(fileListElements) {
 }
 
 function setViewboxLinks(fileListElements, fileListDataByName) {
+    // count num rows that are and aren't coupled
+    let numNietGekoppeld = 0;
+    let numGekoppeld = 0;
+    let numDirectories = 0;
+    for (const file of fileListDataByName.values()) {
+        if (file.soort === 'D')
+            numDirectories++;
+        else if (file.koppelCount === 0)
+            numNietGekoppeld++;
+        else
+            numGekoppeld++;
+    }
+    // assertion, should be unnecessary
+    if (fileListElements.length != fileListDataByName.size ||
+        fileListElements.length != (numNietGekoppeld + numGekoppeld + numDirectories)) {
+        console.error('the file list does not have the same number of rows as the filelist data');
+    }
+
+    let indexNietGekoppeld = 0;
+    let indexGekoppeld = 0;
+
     for (const row of fileListElements) {
         // get the span element that contains the file name
         const fileNameField = row.querySelector('div.g-name > span');
@@ -73,12 +94,15 @@ function setViewboxLinks(fileListElements, fileListDataByName) {
         viewboxLink.setAttribute('href', fileLink);
         if (viewbox === 'fancybox') {
             if (fileData.koppelCount === 0) {
+                indexNietGekoppeld++;
                 viewboxLink.setAttribute('data-fancybox', 'file-list-niet-gekoppeld');
+                viewboxLink.setAttribute('data-caption', `${fileName} (${indexNietGekoppeld}/${numNietGekoppeld} niet gekoppeld)`);
             }
             else {
+                indexGekoppeld++;
                 viewboxLink.setAttribute('data-fancybox', 'file-list-gekoppeld');
+                viewboxLink.setAttribute('data-caption', `${fileName} (${indexGekoppeld}/${numGekoppeld} gekoppeld)`);
             }
-            viewboxLink.setAttribute('data-caption', fileName);
             if (fileName.toLowerCase().endsWith('.pdf')) {
                 viewboxLink.setAttribute('data-type', 'pdf');
             }
