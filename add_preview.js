@@ -1,15 +1,5 @@
-const viewbox = 'fancybox';
-
 // how much time between checking if the file list changed
 const updateTime = 1000;
-
-if (viewbox === 'lightbox')
-    // turn off all animations, because I only care about speed
-    lightbox.option({
-        fadeDuration: 0,
-        imageFadeDuration: 0,
-        resizeDuration: 0,
-    });
 
 setTimeout(addViewboxLinksIfAbsent, 100);
 
@@ -66,9 +56,8 @@ function setViewboxLinks(fileListElements, fileListDataByName) {
         else
             numGekoppeld++;
     }
-    // assertion, should be unnecessary
-    if (fileListElements.length != fileListDataByName.size ||
-        fileListElements.length != (numNietGekoppeld + numGekoppeld + numDirectories)) {
+    // assertion that there are equal number of file DOM elements as files in the fetched file list
+    if (fileListElements.length !== fileListDataByName.size) {
         console.error('the file list does not have the same number of rows as the filelist data');
     }
 
@@ -92,44 +81,37 @@ function setViewboxLinks(fileListElements, fileListDataByName) {
         // create an html element that opens a lightbox
         const viewboxLink = document.createElement('a');
         viewboxLink.setAttribute('href', fileLink);
-        if (viewbox === 'fancybox') {
-            if (fileData.koppelCount === 0) {
-                indexNietGekoppeld++;
-                viewboxLink.setAttribute('data-fancybox', 'file-list-niet-gekoppeld');
-                viewboxLink.setAttribute('data-caption', `${fileName} (${indexNietGekoppeld}/${numNietGekoppeld} niet gekoppeld)`);
-            }
-            else {
-                indexGekoppeld++;
-                viewboxLink.setAttribute('data-fancybox', 'file-list-gekoppeld');
-                viewboxLink.setAttribute('data-caption', `${fileName} (${indexGekoppeld}/${numGekoppeld} gekoppeld)`);
-            }
-            if (fileName.toLowerCase().endsWith('.pdf')) {
-                viewboxLink.setAttribute('data-type', 'pdf');
-            }
-            else if (fileName.toLowerCase().endsWith('.txt')) {
-                viewboxLink.setAttribute('data-type', 'iframe');
-            }
+
+        if (fileData.koppelCount === 0) {
+            indexNietGekoppeld++;
+            viewboxLink.setAttribute('data-fancybox', 'file-list-niet-gekoppeld');
+            viewboxLink.setAttribute('data-caption', `${fileName} (${indexNietGekoppeld}/${numNietGekoppeld} niet gekoppeld)`);
         }
-        else if (viewbox === 'lightbox') {
-            viewboxLink.setAttribute('data-lightbox', `file-${fileData.id}`);
-            viewboxLink.setAttribute('data-title', fileName);
+        else {
+            indexGekoppeld++;
+            viewboxLink.setAttribute('data-fancybox', 'file-list-gekoppeld');
+            viewboxLink.setAttribute('data-caption', `${fileName} (${indexGekoppeld}/${numGekoppeld} gekoppeld)`);
+        }
+        if (fileName.toLowerCase().endsWith('.pdf')) {
+            viewboxLink.setAttribute('data-type', 'pdf');
+        }
+        else if (fileName.toLowerCase().endsWith('.txt')) {
+            viewboxLink.setAttribute('data-type', 'iframe');
         }
 
-        // encapsulate the file name field element within the lightbox link element
+        // encapsulate the file name field element within the viewbox link element
         fileNameField.parentNode.appendChild(viewboxLink);
         viewboxLink.appendChild(fileNameField);
     }
-    if (viewbox === 'fancybox') {
-        Fancybox.bind("[data-fancybox]", {
-            // prevents fancybox from triggering a file list reload
-            Hash: false,
-            Carousel: {
-                Thumbs: {
-                    thumbTpl: '<button aria-label="Slide to #{{page}}"><div style="text-align: center; color: white;">{{index}}</div></button>'
-                },
-            }
-        });
-    }
+    Fancybox.bind("[data-fancybox]", {
+        // prevents fancybox from triggering a file list reload
+        Hash: false,
+        Carousel: {
+            Thumbs: {
+                thumbTpl: '<button aria-label="Slide to #{{page}}"><div style="text-align: center; color: white;">{{index}}</div></button>'
+            },
+        }
+    });
 }
 
 async function getFileListData() {

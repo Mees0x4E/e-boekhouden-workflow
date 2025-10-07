@@ -9,12 +9,10 @@
             ],
             "js": [
                 "fancybox/fancybox.umd.js",
-                "lightbox/lightbox-plus-jquery.min.js",
                 "add_preview.js"
             ],
             "css": [
-                "fancybox/fancybox.css",
-                "lightbox/lightbox.min.css"
+                "fancybox/fancybox.css"
             ],
             "all_frames": true
         }
