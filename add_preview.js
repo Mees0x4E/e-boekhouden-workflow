@@ -122,7 +122,12 @@ function setViewboxLinks(fileListElements, fileListDataByName) {
     if (viewbox === 'fancybox') {
         Fancybox.bind("[data-fancybox]", {
             // prevents fancybox from triggering a file list reload
-            Hash: false
+            Hash: false,
+            Carousel: {
+                Thumbs: {
+                    thumbTpl: '<button aria-label="Slide to #{{page}}"><div style="text-align: center; color: white;">{{index}}</div></button>'
+                },
+            }
         });
     }
 }
